@@ -115,3 +115,19 @@ async def cmd_pexpire(args, store: DataStore) -> bytes:
         return encode_error("ERR value is not an integer or out of range")
     res = await store.pexpire(args[0], ms)
     return encode_integer(res)
+
+
+@registry.register("DEL")
+async def cmd_del(args, store: DataStore) -> bytes:
+    if not args:
+        return encode_error("ERR wrong number of arguments for 'DEL' command")
+    res = await store.del_keys(args)
+    return encode_integer(res)
+
+
+@registry.register("EXISTS")
+async def cmd_exists(args, store: DataStore) -> bytes:
+    if not args:
+        return encode_error("ERR wrong number of arguments for 'EXISTS' command")
+    res = await store.exists(args)
+    return encode_integer(res)

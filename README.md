@@ -1,5 +1,8 @@
 # mini-redis (Kaspersky SDET & Dev Python)
 
+Выполнил: Шафиков Руслан Ришатович.
+Репозиторий: https://github.com/rs31113/mini-redis-kaspersky
+
 Небольшой Redis-подобный TCP-кэш на чистом Python (без сторонних зависимостей в рантайме).  
 Поддерживает RESP2-протокол и базовые команды, TTL с ленивой и фоновой очисткой, простого клиента, тесты на pytest и Dockerfile.
 

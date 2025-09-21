@@ -29,3 +29,57 @@ async def cmd_ping(args: List[bytes], store: DataStore) -> bytes:
     if args:
         return encode_bulk_string(args[0])
     return encode_simple_string("PONG")
+
+
+@registry.register("SET")
+async def cmd_set(args, store: DataStore) -> bytes:
+    if len(args) < 2:
+        return encode_error("ERR wrong number of arguments for 'SET' command")
+    key, value = args[0], args[1]
+    ex_seconds = None
+    keep_ttl = False
+    nx = False
+    xx = False
+
+    i = 2
+    while i < len(args):
+        opt = args[i].decode("utf-8").upper()
+        if opt == "EX":
+            i += 1
+            if i >= len(args):
+                return encode_error("ERR syntax error")
+            try:
+                ex_seconds = int(args[i].decode("utf-8"))
+            except ValueError:
+                return encode_error("ERR value is not an integer or out of range")
+        elif opt == "PX":
+            i += 1
+            if i >= len(args):
+                return encode_error("ERR syntax error")
+            try:
+                ms = int(args[i].decode("utf-8"))
+                ex_seconds = ms / 1000.0
+            except ValueError:
+                return encode_error("ERR value is not an integer or out of range")
+        elif opt == "NX":
+            nx = True
+        elif opt == "XX":
+            xx = True
+        elif opt == "KEEPTTL":
+            keep_ttl = True
+        else:
+            return encode_error("ERR syntax error")
+        i += 1
+
+    ok = await store.set(key, value, ex_seconds=ex_seconds, keep_ttl=keep_ttl, nx=nx, xx=xx)
+    if ok:
+        return encode_simple_string("OK")
+    return encode_bulk_string(None)  # (nil) when NX/XX condition fails
+
+
+@registry.register("GET")
+async def cmd_get(args, store: DataStore) -> bytes:
+    if len(args) != 1:
+        return encode_error("ERR wrong number of arguments for 'GET' command")
+    val = await store.get(args[0])
+    return encode_bulk_string(val)

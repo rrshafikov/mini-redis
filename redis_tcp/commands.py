@@ -83,3 +83,35 @@ async def cmd_get(args, store: DataStore) -> bytes:
         return encode_error("ERR wrong number of arguments for 'GET' command")
     val = await store.get(args[0])
     return encode_bulk_string(val)
+
+
+@registry.register("TTL")
+async def cmd_ttl(args, store: DataStore) -> bytes:
+    if len(args) != 1:
+        return encode_error("ERR wrong number of arguments for 'TTL' command")
+    t = await store.ttl(args[0])
+    return encode_integer(t)
+
+
+@registry.register("EXPIRE")
+async def cmd_expire(args, store: DataStore) -> bytes:
+    if len(args) != 2:
+        return encode_error("ERR wrong number of arguments for 'EXPIRE' command")
+    try:
+        sec = int(args[1].decode("utf-8"))
+    except ValueError:
+        return encode_error("ERR value is not an integer or out of range")
+    res = await store.expire(args[0], sec)
+    return encode_integer(res)
+
+
+@registry.register("PEXPIRE")
+async def cmd_pexpire(args, store: DataStore) -> bytes:
+    if len(args) != 2:
+        return encode_error("ERR wrong number of arguments for 'PEXPIRE' command")
+    try:
+        ms = int(args[1].decode("utf-8"))
+    except ValueError:
+        return encode_error("ERR value is not an integer or out of range")
+    res = await store.pexpire(args[0], ms)
+    return encode_integer(res)

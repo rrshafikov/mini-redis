@@ -1,0 +1,12 @@
+[project]
+name = "mini-redis"
+version = "0.1.0"
+description = "Tiny Redis-like TCP cache service for Kaspersky SDET task"
+requires-python = ">=3.12"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["redis_tcp"]
